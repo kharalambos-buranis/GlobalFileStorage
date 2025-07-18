@@ -1,0 +1,6 @@
+@GlobalFileStorage.Api_HostAddress = http://localhost:5141
+
+GET {{GlobalFileStorage.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
