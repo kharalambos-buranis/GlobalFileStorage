@@ -13,7 +13,6 @@ namespace GlobalFileStorage.Api.Infrastructure.Configurations
             builder.HasKey(u => u.TenantId);
 
             builder.Property(u => u.TenantId).HasColumnName("tenant_id");
-            builder.Property(u => u.Tenant).HasColumnName("tenant");
             builder.Property(u => u.StorageUsed).HasColumnName("storage_used");
             builder.Property(u => u.BandwidthUsed).HasColumnName("bandwidth_used");
             builder.Property(u => u.APICallsCount).HasColumnName("API_calss_count");

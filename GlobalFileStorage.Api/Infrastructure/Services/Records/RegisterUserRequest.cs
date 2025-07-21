@@ -6,7 +6,7 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.Records
         string Email,
         string Password,
         UserRole Role,
-        Guid TenantId
+        Guid? TenantId
     );
     
     

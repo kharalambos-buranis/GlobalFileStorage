@@ -10,8 +10,9 @@ namespace GlobalFileStorage.Api.Infrastructure.Configurations
         {
             builder.ToTable(nameof(FileItem));
 
+            builder.HasKey(f => f.FileId).HasName("pk_files");
+
             builder.Property(f => f.FileId).HasColumnName("id");
-            builder.Property(f => f.Tenant).HasColumnName("tenant");
             builder.Property(f => f.FileName).HasColumnName("file_name");
             builder.Property(f => f.FileSize).HasColumnName("file_size");
             builder.Property(f => f.ContentType).HasColumnName("content_type");

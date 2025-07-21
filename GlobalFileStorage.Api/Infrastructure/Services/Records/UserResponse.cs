@@ -4,7 +4,7 @@
       Guid UserId,
       string Email,
       string Role,
-      Guid TenantId
+      Guid? TenantId
     );
     
 

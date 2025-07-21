@@ -32,13 +32,16 @@ public class UserService : IUserService
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<UserResponse> RegisterUserAsync(RegisterUserRequest request)
+    public async Task<UserResponse> CreateUserAsync(RegisterUserRequest request) 
     {
-        var tenant = await _tenantRepository.GetByIdAsync(request.TenantId);
-       
-        if (tenant == null || tenant.TenantStatus != TenantStatus.Active)
+        if (request.Role != UserRole.TenantAdmin)  
         {
-            throw new InvalidOperationException("Invalid or inactive tenant.");
+            var tenant = await _tenantRepository.GetByIdAsync(request.TenantId.GetValueOrDefault());
+
+            if (tenant == null || tenant.TenantStatus != TenantStatus.Active)
+            {
+                throw new InvalidOperationException("Invalid or inactive tenant.");
+            }
         }
 
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
@@ -89,11 +92,14 @@ public class UserService : IUserService
             throw new ConflictException("Email is not correct");
         } 
 
-        var tenant = await _tenantRepository.GetByIdAsync(user.TenantId);
-       
-        if (tenant is null || tenant.TenantStatus != TenantStatus.Active)
+        if (user.TenantId.HasValue)
         {
-            throw new ConflictException("Tenant is inactive.");
+            var tenant = await _tenantRepository.GetByIdAsync(user.TenantId.Value);
+           
+            if (tenant is null || tenant.TenantStatus != TenantStatus.Active)
+            {
+                throw new ConflictException("Tenant is inactive.");
+            }
         }
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.APIKeyHash, request.Password);

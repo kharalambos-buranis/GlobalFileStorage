@@ -1,4 +1,5 @@
 using FluentValidation;
+using GlobalFileStorage.Api.Common.Entities;
 using GlobalFileStorage.Api.Domain.RepositoryInterfaces;
 using GlobalFileStorage.Api.Domain.ServiceLayerInterfaces;
 using GlobalFileStorage.Api.Infrastructure.Database;
@@ -8,6 +9,7 @@ using GlobalFileStorage.Api.Infrastructure.Services.Middlewares;
 using GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers;
 using GlobalFileStorage.Api.Infrastructure.Services.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Minio;
@@ -25,12 +27,16 @@ builder.Services.AddDbContext<TenantDbContext>(
       });
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
-builder.Services.AddScoped<IFileItemRepository, FileItemReposioty>();
-builder.Services.AddScoped<IUsageStatsRepository,UsageStatsReposiotry>();
+builder.Services.AddScoped<IFileItemRepository, FileItemRepository>();
+builder.Services.AddScoped<IUsageStatsRepository,UsageStatsRepository>();
+
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileItemService, FileItemService>();
+builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
+
 
 
 
@@ -84,6 +90,7 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

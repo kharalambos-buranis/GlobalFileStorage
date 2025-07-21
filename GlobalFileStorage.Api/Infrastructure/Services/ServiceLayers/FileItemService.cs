@@ -2,6 +2,7 @@
 using GlobalFileStorage.Api.Common.Enums;
 using GlobalFileStorage.Api.Domain.RepositoryInterfaces;
 using GlobalFileStorage.Api.Domain.ServiceLayerInterfaces;
+using GlobalFileStorage.Api.Infrastructure.Services.Exceptions;
 using GlobalFileStorage.Api.Infrastructure.Services.Records;
 
 namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
@@ -17,10 +18,10 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
             _fileStorageService = fileStorageService;
         }
 
-        public async Task<UploadFileResponse> RegisterUploadAsync(UploadFileRequest request, Guid userId, Guid tenantId)
+        public async Task<UploadFileResponse> RegisterUploadAsync(UploadFileRequest request)
         {
             var fileId = Guid.NewGuid();
-            var objectPath = $"{tenantId}/{fileId}";
+            var objectPath = $"{request.tenantId}/{fileId}";
 
             var fileItem = new FileItem
             {
@@ -29,8 +30,8 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
                 FileSize = request.FileSize,
                 ContentType = request.ContentType,
                 StoragePath = objectPath,
-                TenantId = tenantId,
-                UserId = userId,
+                TenantId = request.tenantId,
+                UserId = request.userId,
                 UploadTimestamp = DateTime.UtcNow,
                 AccessLevel = AccessLevel.Private,
                 Metadata = request.Metadata ?? new Dictionary<string, string>(),
@@ -41,7 +42,7 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
             await _fileRepository.AddAsync(fileItem);
             await _fileRepository.SaveChangesAsync();
 
-            var uploadUrl = await _fileStorageService.GenerateUploadUrlAsync(tenantId.ToString(), objectPath, TimeSpan.FromMinutes(10));
+            var uploadUrl = await _fileStorageService.GenerateUploadUrlAsync(request.tenantId.ToString(), objectPath, TimeSpan.FromMinutes(10));
 
             return new UploadFileResponse(
                 fileItem.FileId,
@@ -51,7 +52,7 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
         }
 
         public async Task<List<FileMetadataResponse>> GetFilesByTenantAsync(Guid tenantId)
-        {
+        { 
             var files = await _fileRepository.GetByTenantAsync(tenantId);
             return files.Select(ToMetadataResponse).ToList();
         }
@@ -60,6 +61,19 @@ namespace GlobalFileStorage.Api.Infrastructure.Services.ServiceLayers
         {
             var files = await _fileRepository.GetByTagsAsync(tenantId, tags);
             return files.Select(ToMetadataResponse).ToList();
+        }
+
+        public async Task DeleteFileAsync(Guid fileId, Guid tenantId)
+        {
+            var file = await _fileRepository.GetByIdAsync(fileId);
+            if (file is null || file.TenantId != tenantId)
+            {
+                throw new NotFoundException("File not found or unauthorized.");
+            }
+
+            await _fileStorageService.DeleteFileAsync(tenantId.ToString(), file.StoragePath);
+            _fileRepository.Delete(file);
+            await _fileRepository.SaveChangesAsync();
         }
 
         private static FileMetadataResponse ToMetadataResponse(FileItem file) =>

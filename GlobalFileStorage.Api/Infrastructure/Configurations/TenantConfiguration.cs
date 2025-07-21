@@ -34,9 +34,9 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
           .WithOne(f => f.Tenant)
           .HasForeignKey(f => f.TenantId);
 
-    //    builder
-    //.HasOne(t => t.UsageStats)
-    //.WithOne(u => u.Tenant)
-    //.HasForeignKey<UsageStats>(u => u.TenantId);
+     //    builder
+     //.HasOne(t => t.UsageStats)
+     //.WithOne(u => u.Tenant)
+     //.HasForeignKey<UsageStats>(u => u.TenantId);
     }
 }

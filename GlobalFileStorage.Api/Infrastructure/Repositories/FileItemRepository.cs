@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFileStorage.Api.Infrastructure.Repositories
 {
-    public class FileItemReposioty : BaseRepository<FileItem>, IFileItemRepository
+    public class FileItemRepository : BaseRepository<FileItem>, IFileItemRepository
     {
-        public FileItemReposioty(TenantDbContext context) : base(context)
+        public FileItemRepository(TenantDbContext context) : base(context)
         {
         }
 

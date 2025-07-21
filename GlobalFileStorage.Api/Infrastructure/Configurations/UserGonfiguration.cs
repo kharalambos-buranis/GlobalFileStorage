@@ -13,7 +13,6 @@ namespace GlobalFileStorage.Api.Infrastructure.Configurations
             builder.HasKey(u => u.UserId).HasName("pk_users");
 
             builder.Property(u => u.UserId).HasColumnName("id");
-            builder.Property(u => u.Tenant).HasColumnName("tenant");
             builder.Property(u => u.Email).HasColumnName("email");
             builder.Property(u => u.Role).HasColumnName("role");
             builder.Property(u => u.PermissionsJson).HasColumnName("permission_json");
